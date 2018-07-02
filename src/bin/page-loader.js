@@ -12,7 +12,7 @@ program
   .option('-o, --output [directory]', 'Output folder', currentDir)
   .arguments('<targetUrl>')
   .action((targetUrl) => {
-    console.log(pageLoader(targetUrl, program.output));
+    pageLoader(targetUrl, program.output);
   })
   .parse(process.argv);
 
