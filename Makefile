@@ -8,7 +8,7 @@ publish:
 	npm publish
 
 lint:
-	npm run eslint .
+	npm run lint .
 
 build:
 	rm -rf dist
