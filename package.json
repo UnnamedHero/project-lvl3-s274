@@ -1,0 +1,29 @@
+{
+  "name": "eem-page-loader",
+  "version": "0.0.0",
+  "description": "Page loader Hexlet backend project#3",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/UnnamedHero/project-lvl3-s274.git"
+  },
+  "keywords": [
+    "Hexlet",
+    "page-loader"
+  ],
+  "author": "EEM",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/UnnamedHero/project-lvl3-s274/issues"
+  },
+  "homepage": "https://github.com/UnnamedHero/project-lvl3-s274#readme",
+  "devDependencies": {
+    "@babel/cli": "^7.0.0-beta.51",
+    "@babel/core": "^7.0.0-beta.51",
+    "@babel/preset-env": "^7.0.0-beta.51",
+    "@babel/preset-stage-0": "^7.0.0-beta.51"
+  }
+}
