@@ -1,25 +1,22 @@
 import fs from 'mz/fs';
-import url from 'url';
+import path from 'path';
+import axios from 'axios';
+import httpAdapter from 'axios/lib/adapters/http';
+import makeNameFromUrl from './helpers/name';
 
-const makeNameFromUrl = (urlString) => {
-  const { host, pathname } = url.parse(urlString);
-  const validHost = host === null ? '' : host;
-  const validPathName = pathname === '/' ? '' : pathname;
-  const nonWordChars = new RegExp('\\W', 'g');
-  const addrWithoutScheme = `${validHost}${validPathName}`;
-  const replaceChar = '-';
-  const name = addrWithoutScheme.replace(nonWordChars, replaceChar);
-  return `${name}.html`;
+axios.defaults.adapter = httpAdapter;
+
+const pageLoader = (targetUrl, destinationDir) => {
+  const name = makeNameFromUrl(targetUrl);
+  const htmlName = `${name}.html`;
+  const outputHtmlFile = path.join(destinationDir, htmlName);
+  return fs.access(destinationDir, fs.constants.W_OK)
+    .then(() => axios.get(targetUrl))
+    .then(response => fs.writeFile(outputHtmlFile, response.data))
+    .catch((err) => {
+      console.log(`Error: ${err.message}`);
+      return err;
+    });
 };
-
-const pageLoader = (targetUrl, destinationDir) => fs.access(destinationDir, fs.constants.W_OK)
-  .then(() => {
-    const name = makeNameFromUrl(targetUrl);
-    console.log(name, destinationDir);
-  })
-  .catch((err) => {
-    console.log(`Error: ${err.message}`);
-    return err;
-  });
 
 export default pageLoader;
