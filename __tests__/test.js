@@ -34,13 +34,13 @@ describe('helpers tests', () => {
   });
 });
 
-// describe('directory access testing', () => {
-//   expect.assertions(1);
-//   test('root dir', async () => {
-//     const data = await (pageLoader('foobar', '/'));
-//     expect(data.message).toBe('EACCES: permission denied, access \'/\'');
-//   });
-// });
+describe('directory access testing', () => {
+  expect.assertions(1);
+  test('root dir', async () => {
+    const data = await (pageLoader('foobar', '/'));
+    expect(data.message).toBe('EACCES: permission denied, access \'/\'');
+  });
+});
 
 describe('page download test', () => {
   beforeEach(async () => {
