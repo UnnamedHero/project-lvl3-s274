@@ -2,6 +2,8 @@
 
 [![Build Status](https://travis-ci.org/UnnamedHero/project-lvl3-s274.svg?branch=master)](https://travis-ci.org/UnnamedHero/project-lvl3-s274)
 
+[![Coverage Status](https://coveralls.io/repos/github/UnnamedHero/project-lvl3-s274/badge.svg?branch=master)](https://coveralls.io/github/UnnamedHero/project-lvl3-s274?branch=master)
+
 Цель: Основная задача этого проекта, показать общие принципы работы с асинхронным кодом в js. Затрагиваемые темы:
 
  - Тестирование с использованием Mock/Stub
