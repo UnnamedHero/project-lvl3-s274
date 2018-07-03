@@ -1,8 +1,14 @@
 {
   "name": "eem-page-loader",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Page loader Hexlet backend project#3",
   "main": "index.js",
+  "bin": {
+    "eem-page-loader": "dist/bin/page-loader.js"
+  },
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "test": "jest",
     "lint": "eslint",
@@ -33,7 +39,6 @@
     "babel-core": "^7.0.0-bridge.0",
     "babel-eslint": "^8.2.5",
     "babel-jest": "^23.2.0",
-    "coveralls": "^3.0.2",
     "eslint": "^4.19.1",
     "eslint-config-airbnb-base": "^13.0.0",
     "eslint-plugin-import": "^2.13.0",
