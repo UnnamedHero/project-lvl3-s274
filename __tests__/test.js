@@ -1,30 +1,30 @@
-// import os from 'os';
 import fs from 'mz/fs';
 import os from 'os';
 import nock from 'nock';
 import path from 'path';
-// import httpAdapter from 'axios/lib/adapters/http';
 import pageLoader from '../src';
 import makeNameFromUrl from '../src/helpers/name';
 
 const testPath = __dirname;
-const tmpDirs = new Set();
+
 const fixturesPath = path.join(testPath, '__fixtures__');
 const pathTo = fileName => path.join(fixturesPath, fileName);
-const getFileContent = filePath => fs.readFileSync(filePath, 'utf8');
 
 const makeTmpDir = async () => fs.mkdtemp(path.join(os.tmpdir(), 'page-loader'));
-const removeDir = async (dirPath) => {
-  const dirContent = await fs.readdir(dirPath);
-  await dirContent.forEach(async (item) => {
-    const itemPath = path.join(dirPath, item);
-    const itemType = await fs.stat(itemPath);
+
+const removeDir = (dir) => {
+  console.log(dir);
+  const dirContent = fs.readdirSync(dir);
+  dirContent.forEach((dirItem) => {
+    const itemPath = path.resolve(dir, dirItem);
+    const itemType = fs.statSync(itemPath);
     if (itemType.isDirectory()) {
-      await removeDir(itemPath);
+      removeDir(itemPath);
+    } else {
+      fs.unlinkSync(itemPath);
     }
-    await fs.unlink(itemPath);
   });
-  await fs.rmdir(dirPath);
+  fs.rmdirSync(dir);
 };
 
 describe('helpers tests', () => {
@@ -43,32 +43,34 @@ describe('directory access testing', () => {
 });
 
 describe('page download test', () => {
-  beforeEach(async () => {
-    const tmpDir = await makeTmpDir();
-    tmpDirs.add(tmpDir);
-    process.chdir(tmpDir);
-  });
-  afterEach(() => {
-    process.chdir(testPath);
-  });
-
-  afterAll(async () => {
-    // tmpDirs.forEach(dir => removeDir(dir));
-  });
-
+  const tmpDirs = new Map();
   const simpleHtml = 'simple.html';
-  const simpleHtmlContent = getFileContent(pathTo(simpleHtml));
+  const simpleHtmlContent = fs.readFileSync(pathTo(simpleHtml), 'utf8');
+
   const targetUrl = 'http://www.example.com';
   nock(targetUrl)
     .get('/')
     .reply(200, simpleHtmlContent, { 'Content-Type': 'text/html' });
-  test('simple html', async () => {
-    expect.assertions(1);
-    const cwd = process.cwd();
-    await pageLoader(targetUrl, cwd);
-    const htmlName = `${makeNameFromUrl(targetUrl)}.html`;
-    const resultFilePath = path.join(cwd, htmlName);
-    const resultData = getFileContent(resultFilePath);
-    expect(resultData).toBe(simpleHtmlContent);
+
+  test('simple html', () => {
+    const testName = 'simple html';
+    makeTmpDir()
+      .then((tmpDir) => {
+        tmpDirs.set(testName, tmpDir);
+        console.log(tmpDirs);
+        return pageLoader(targetUrl, tmpDir);
+      })
+      .then(() => {
+        const htmlName = `${makeNameFromUrl(targetUrl)}.html`;
+        const resultFilePath = path.join(tmpDirs.get(testName), htmlName);
+        return fs.readFile(resultFilePath, 'utf8');
+      })
+      .then((pageContent) => {
+        expect(pageContent).toBe(simpleHtmlContent);
+      })
+      .then(() => {
+        removeDir(tmpDirs.get(testName));
+      })
+      .catch(err => console.log(err));
   });
 });
