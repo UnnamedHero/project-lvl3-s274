@@ -11,8 +11,12 @@ program
   .version(pageLoaderVersion)
   .option('-o, --output [directory]', 'Output folder', currentDir)
   .arguments('<targetUrl>')
-  .action((targetUrl) => {
-    pageLoader(targetUrl, program.output);
+  .action(async (targetUrl) => {
+    try {
+      await pageLoader(targetUrl, program.output);
+    } catch (e) {
+      console.log(e.message);
+    }
   })
   .parse(process.argv);
 
