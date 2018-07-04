@@ -15,8 +15,8 @@ const pageLoader = (targetUrl, destinationDir) => {
       console.log(`Page was downloaded to ${outputHtmlFile}`);
     })
     .catch((err) => {
-      console.log(`Error! ${err.message}`);
-      return new Error(err);
+      // console.log(`Error! ${err.message}`);
+      throw new Error(err);
     });
 };
 
