@@ -61,10 +61,15 @@ describe('page download test', () => {
     } catch (e) {
       assert(false, `pageLoader failed to complete ${e}`);
     }
+
     const htmlName = `${makeNameFromUrl(targetUrl)}.html`;
     const resultFilePath = path.join(tmpDirName, htmlName);
-    const pageContent = await fs.readFile(resultFilePath, 'utf8');
-    expect(pageContent).toBe(simpleHtmlContent);
+    try {
+      const pageContent = await fs.readFile(resultFilePath, 'utf8');
+      expect(pageContent).toBe(simpleHtmlContent);
+    } catch (e) {
+      assert(false, `cannot read downloaded page ${e}`);
+    }
 
     try {
       fs.remove(tmpDirName);
