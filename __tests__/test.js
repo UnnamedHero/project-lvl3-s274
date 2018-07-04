@@ -59,22 +59,23 @@ describe('page download test', () => {
     try {
       await pageLoader(targetUrl, tmpDirName);
     } catch (e) {
-      assert(false, `pageLoader failed to complete ${e}`);
+      assert.fail(`pageLoader failed to complete ${e}`);
     }
 
     const htmlName = `${makeNameFromUrl(targetUrl)}.html`;
     const resultFilePath = path.join(tmpDirName, htmlName);
+    let pageContent = '';
     try {
-      const pageContent = await fs.readFile(resultFilePath, 'utf8');
-      expect(pageContent).toBe(simpleHtmlContent);
+      pageContent = await fs.readFile(resultFilePath, 'utf8');
     } catch (e) {
-      assert(false, `cannot read downloaded page ${e}`);
+      assert.fail(`cannot read file with downloaded page ${e}`);
     }
+    expect(pageContent).toBe(simpleHtmlContent);
 
     try {
       fs.remove(tmpDirName);
     } catch (e) {
-      assert(false, `cannot delete temp directory ${e}`);
+      assert.fail(`cannot delete temp directory ${e}`);
     }
   });
 });
