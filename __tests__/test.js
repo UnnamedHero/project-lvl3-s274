@@ -10,7 +10,7 @@ const testPath = __dirname;
 const fixturesPath = path.join(testPath, '__fixtures__');
 const pathTo = fileName => path.join(fixturesPath, fileName);
 
-const makeTmpDir = async () => fs.mkdtemp(path.join(os.tmpdir(), 'page-loader'));
+const makeTmpDir = () => fs.mkdtemp(path.join(os.tmpdir(), 'page-loader'));
 
 describe('helpers tests', () => {
   test('makeNameFromUrl', () => {
