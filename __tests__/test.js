@@ -35,10 +35,12 @@ describe('helpers tests', () => {
 });
 
 describe('directory access testing', () => {
-  expect.assertions(1);
   test('root dir', async () => {
-    const data = await (pageLoader('foobar', '/'));
-    expect(data.message).toBe('EACCES: permission denied, access \'/\'');
+    try {
+      await (pageLoader('foobar', '/'));
+    } catch (e) {
+      expect(e).toBeInstanceOf(Error);
+    }
   });
 });
 
