@@ -2,14 +2,14 @@ import fs from 'fs-extra';
 import os from 'os';
 import nock from 'nock';
 import path from 'path';
+import assert from 'assert';
 import pageLoader from '../src';
 import makeNameFromUrl from '../src/helpers/name';
 
 const testPath = __dirname;
-
 const fixturesPath = path.join(testPath, '__fixtures__');
-const pathTo = fileName => path.join(fixturesPath, fileName);
 
+const pathTo = fileName => path.join(fixturesPath, fileName);
 const makeTmpDir = () => fs.mkdtemp(path.join(os.tmpdir(), 'page-loader'));
 
 describe('helpers tests', () => {
@@ -31,33 +31,45 @@ describe('directory access testing', () => {
 
 describe('page download test', () => {
   const tmpDirs = new Map();
+  const tests = [
+    'simple html',
+  ];
   const simpleHtml = 'simple.html';
   const simpleHtmlContent = fs.readFileSync(pathTo(simpleHtml), 'utf8');
-
   const targetUrl = 'http://www.example.com';
-  nock(targetUrl)
-    .get('/')
-    .reply(200, simpleHtmlContent, { 'Content-Type': 'text/html' });
 
-  test('simple html', () => {
-    const testName = 'simple html';
-    makeTmpDir()
-      .then((tmpDir) => {
-        tmpDirs.set(testName, tmpDir);
-        console.log(tmpDirs);
-        return pageLoader(targetUrl, tmpDir);
-      })
-      .then(() => {
-        const htmlName = `${makeNameFromUrl(targetUrl)}.html`;
-        const resultFilePath = path.join(tmpDirs.get(testName), htmlName);
-        return fs.readFile(resultFilePath, 'utf8');
-      })
-      .then((pageContent) => {
-        expect(pageContent).toBe(simpleHtmlContent);
-      })
-      .then(() => {
-        fs.remove(tmpDirs.get(testName));
-      })
-      .catch(err => console.log(err));
+  beforeAll(async () => {
+    try {
+      const makeAllTmpDirs = testsList => Promise.all(testsList.map(makeTmpDir));
+      const allTmpDirs = await makeAllTmpDirs(tests);
+      allTmpDirs.forEach((dir, index) => {
+        tmpDirs.set(tests[index], dir);
+      });
+    } catch (e) {
+      throw new Error(`cannot create temp directories: ${e}`);
+    }
+  });
+
+  test(tests[0], async () => {
+    nock(targetUrl)
+      .get('/')
+      .reply(200, simpleHtmlContent, { 'Content-Type': 'text/html' });
+    const testName = tests[0];
+    const tmpDirName = tmpDirs.get(testName);
+    try {
+      await pageLoader(targetUrl, tmpDirName);
+    } catch (e) {
+      assert(false, `pageLoader failed to complete ${e}`);
+    }
+    const htmlName = `${makeNameFromUrl(targetUrl)}.html`;
+    const resultFilePath = path.join(tmpDirName, htmlName);
+    const pageContent = await fs.readFile(resultFilePath, 'utf8');
+    expect(pageContent).toBe(simpleHtmlContent);
+
+    try {
+      fs.remove(tmpDirName);
+    } catch (e) {
+      assert(false, `cannot delete temp directory ${e}`);
+    }
   });
 });
