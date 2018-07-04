@@ -1,10 +1,8 @@
 import fs from 'mz/fs';
 import path from 'path';
-import axios from 'axios';
-import httpAdapter from 'axios/lib/adapters/http';
-import makeNameFromUrl from './helpers/name';
+import axios from './lib/axios';
 
-axios.defaults.adapter = httpAdapter;
+import makeNameFromUrl from './helpers/name';
 
 const pageLoader = (targetUrl, destinationDir) => {
   const name = makeNameFromUrl(targetUrl);
