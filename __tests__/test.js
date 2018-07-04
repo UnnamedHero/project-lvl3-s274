@@ -1,4 +1,4 @@
-import fs from 'mz/fs';
+import fs from 'fs-extra';
 import os from 'os';
 import nock from 'nock';
 import path from 'path';
@@ -11,21 +11,6 @@ const fixturesPath = path.join(testPath, '__fixtures__');
 const pathTo = fileName => path.join(fixturesPath, fileName);
 
 const makeTmpDir = async () => fs.mkdtemp(path.join(os.tmpdir(), 'page-loader'));
-
-const removeDir = (dir) => {
-  console.log(dir);
-  const dirContent = fs.readdirSync(dir);
-  dirContent.forEach((dirItem) => {
-    const itemPath = path.resolve(dir, dirItem);
-    const itemType = fs.statSync(itemPath);
-    if (itemType.isDirectory()) {
-      removeDir(itemPath);
-    } else {
-      fs.unlinkSync(itemPath);
-    }
-  });
-  fs.rmdirSync(dir);
-};
 
 describe('helpers tests', () => {
   test('makeNameFromUrl', () => {
@@ -71,7 +56,7 @@ describe('page download test', () => {
         expect(pageContent).toBe(simpleHtmlContent);
       })
       .then(() => {
-        removeDir(tmpDirs.get(testName));
+        fs.remove(tmpDirs.get(testName));
       })
       .catch(err => console.log(err));
   });
