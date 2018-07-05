@@ -9,13 +9,13 @@ const pageLoader = (targetUrl, destinationDir) => {
   const htmlName = `${name}.html`;
   const outputHtmlFile = path.join(destinationDir, htmlName);
   return fs.access(destinationDir, fs.constants.W_OK)
+    .then(() => fs.open(outputHtmlFile, 'wx'))
     .then(() => axios.get(targetUrl))
     .then(response => fs.writeFile(outputHtmlFile, response.data))
     .then(() => {
       console.log(`Page was downloaded to ${outputHtmlFile}`);
     })
     .catch((err) => {
-      // console.log(`Error! ${err.message}`);
       throw new Error(err);
     });
 };
