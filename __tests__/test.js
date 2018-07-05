@@ -2,15 +2,22 @@ import fs from 'fs-extra';
 import os from 'os';
 import nock from 'nock';
 import path from 'path';
-import assert from 'assert';
 import pageLoader from '../src';
 import makeNameFromUrl from '../src/helpers/name';
 
+let tmpDir;
 const testPath = __dirname;
 const fixturesPath = path.join(testPath, '__fixtures__');
 
 const pathTo = fileName => path.join(fixturesPath, fileName);
-const makeTmpDir = () => fs.mkdtemp(path.join(os.tmpdir(), 'page-loader'));
+
+beforeAll(async () => {
+  tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), 'page-loader'));
+});
+
+afterAll(async () => {
+  await fs.remove(tmpDir);
+});
 
 describe('helpers tests', () => {
   test('makeNameFromUrl', () => {
@@ -20,62 +27,33 @@ describe('helpers tests', () => {
 });
 
 describe('directory access testing', () => {
-  test('root dir', async () => {
-    try {
-      await (pageLoader('foobar', '/'));
-    } catch (e) {
-      expect(e).toBeInstanceOf(Error);
-    }
+  test('fake dir', async () => {
+    await expect(pageLoader('foobar', 'c:\\windows\\system32'))
+      .rejects.toBeInstanceOf(Error);
   });
 });
 
 describe('page download test', () => {
-  const tmpDirs = new Map();
-  const tests = [
-    'simple html',
-  ];
   const simpleHtml = 'simple.html';
   const simpleHtmlContent = fs.readFileSync(pathTo(simpleHtml), 'utf8');
   const targetUrl = 'http://www.example.com';
 
-  beforeAll(async () => {
-    try {
-      const makeAllTmpDirs = testsList => Promise.all(testsList.map(makeTmpDir));
-      const allTmpDirs = await makeAllTmpDirs(tests);
-      allTmpDirs.forEach((dir, index) => {
-        tmpDirs.set(tests[index], dir);
-      });
-    } catch (e) {
-      throw new Error(`cannot create temp directories: ${e}`);
-    }
-  });
-
-  test(tests[0], async () => {
+  test('download page', async () => {
     nock(targetUrl)
       .get('/')
       .reply(200, simpleHtmlContent, { 'Content-Type': 'text/html' });
-    const testName = tests[0];
-    const tmpDirName = tmpDirs.get(testName);
-    try {
-      await pageLoader(targetUrl, tmpDirName);
-    } catch (e) {
-      assert.fail(`pageLoader failed to complete ${e}`);
-    }
+
+    await pageLoader(targetUrl, tmpDir);
 
     const htmlName = `${makeNameFromUrl(targetUrl)}.html`;
-    const resultFilePath = path.join(tmpDirName, htmlName);
-    let pageContent = '';
-    try {
-      pageContent = await fs.readFile(resultFilePath, 'utf8');
-    } catch (e) {
-      assert.fail(`cannot read file with downloaded page ${e}`);
-    }
-    expect(pageContent).toBe(simpleHtmlContent);
+    const resultFilePath = path.join(tmpDir, htmlName);
+    const pageContent = await fs.readFile(resultFilePath, 'utf8');
 
-    try {
-      fs.remove(tmpDirName);
-    } catch (e) {
-      assert.fail(`cannot delete temp directory ${e}`);
-    }
+    expect(pageContent).toBe(simpleHtmlContent);
+  });
+
+  test('should fail if file exists', async () => {
+    await expect(pageLoader(targetUrl, tmpDir))
+      .rejects.toBeInstanceOf(Error);
   });
 });
