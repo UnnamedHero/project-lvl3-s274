@@ -16,7 +16,7 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  await fs.remove(tmpDir);
+  // await fs.remove(tmpDir);
 });
 
 describe('helpers tests', () => {
@@ -47,11 +47,11 @@ describe('page download test', () => {
   const filesPath = `${name}_files`;
 
   const expectedDownloadedFiles = [
-    '/icons-logo.png',
-    '/css-style1.css',
-    '/js-bitcoin-miner.js',
-    '/pictures-passport-1.png',
-    '/scans-my-credit-card.jpg',
+    { downloaded: '/icons-logo.png', fixture: 'logo.png' },
+    { downloaded: '/css-style1.css', fixture: 'style1.css' },
+    { downloaded: '/js-bitcoin-miner.js', fixture: 'bitcoin-miner.ts' },
+    { downloaded: '/pictures-passport-1.png', fixture: 'passport-1.png' },
+    { downloaded: '/scans-my-credit-card.jpg', fixture: 'my-credit-card.jpg' },
   ];
 
   test('download page', async () => {
@@ -61,7 +61,7 @@ describe('page download test', () => {
       .get('/icons/logo.png')
       .replyWithFile(200, pathTo('logo.png'))
       .get('/css/style1.css')
-      .delay(2000)
+      .delay(1000)
       .replyWithFile(200, pathTo('style1.css'))
       .get('/js/bitcoin-miner.js')
       .delay(2000)
@@ -77,9 +77,12 @@ describe('page download test', () => {
     await expect(fs.open(resultHtmlFilePath, 'r')).resolves.toBeDefined();
   });
 
-  test.each(expectedDownloadedFiles)('check if \'%s\' downloaded', async (file) => {
-    const filePath = path.join(tmpDir, filesPath, file);
-    await expect(fs.open(filePath, 'r')).resolves.toBeDefined();
+  test.each(expectedDownloadedFiles)('check if \'%o\' downloaded', async ({ downloaded, fixture }) => {
+    const filePath = path.join(tmpDir, filesPath, downloaded);
+    console.log(filePath);
+    const expectedContent = await fs.readFile(pathTo(fixture), 'utf8');
+    const downloadedContent = await fs.readFile(filePath, 'utf8');
+    expect(downloadedContent).toEqual(expectedContent);
   });
 
   test('should fail if file exists', async () => {
