@@ -60,9 +60,10 @@ const downloadRemoteResources = (data) => {
 const saveDownloadedResources = downloads => Promise.all(downloads
   .map((download) => {
     const { response, uri, filePath } = download;
-    return new Promise((resolve) => {
+    return new Promise((resolve, reject) => {
       response.data.pipe(fs.createWriteStream(filePath)
-        .on('finish', resolve({ uri, filePath })));
+        .on('finish', () => resolve({ uri, filePath }))
+        .on('error', e => reject(e)));
     });
   }));
 
