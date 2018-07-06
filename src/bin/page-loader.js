@@ -1,7 +1,6 @@
 #!/usr/bin/env node
 
 import program from 'commander';
-// import cwd from 'process';
 import { version as pageLoaderVersion } from '../../package.json';
 import pageLoader from '..';
 
