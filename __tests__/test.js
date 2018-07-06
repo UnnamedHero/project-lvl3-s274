@@ -79,7 +79,6 @@ describe('page download test', () => {
 
   test.each(expectedDownloadedFiles)('check if \'%o\' downloaded', async ({ downloaded, fixture }) => {
     const filePath = path.join(tmpDir, filesPath, downloaded);
-    console.log(filePath);
     const expectedContent = await fs.readFile(pathTo(fixture), 'utf8');
     const downloadedContent = await fs.readFile(filePath, 'utf8');
     expect(downloadedContent).toEqual(expectedContent);
