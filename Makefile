@@ -16,3 +16,6 @@ build:
 
 test:
 	npm test
+
+watch:
+	npm test -- --watch
