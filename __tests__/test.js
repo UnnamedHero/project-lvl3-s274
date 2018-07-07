@@ -16,7 +16,7 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  // await fs.remove(tmpDir);
+  await fs.remove(tmpDir);
 });
 
 describe('helpers tests', () => {
