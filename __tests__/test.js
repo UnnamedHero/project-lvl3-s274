@@ -56,9 +56,7 @@ describe('page loader test', () => {
       .get('/pictures/passport-1.png')
       .replyWithFile(200, pathTo('passport-1.png'))
       .get('/scans/my-credit-card.jpg')
-      .replyWithFile(200, pathTo('my-credit-card.jpg'))
-      .get('/pictures/secret.bmp')
-      .reply(404);
+      .replyWithFile(200, pathTo('my-credit-card.jpg'));
 
     await pageLoader(targetUrl, tmpDir);
     const htmlName = `${name}.html`;

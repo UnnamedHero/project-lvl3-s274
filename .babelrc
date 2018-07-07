@@ -4,11 +4,12 @@
         [ 
             "@babel/preset-stage-0",
             {
-                "decoratorsLegacy": true
+                "decoratorsLegacy": true,
+                "pipelineProposal": "minimal"
             }
         ]
     ],
     "plugins": [
-        ["@babel/plugin-transform-runtime"]
+        "@babel/plugin-transform-runtime"
     ]
 }

@@ -1,6 +1,6 @@
 {
   "name": "eem-page-loader",
-  "version": "0.2.6",
+  "version": "0.3.0",
   "description": "Page loader Hexlet backend project#3",
   "main": "index.js",
   "bin": {
@@ -31,19 +31,19 @@
   },
   "homepage": "https://github.com/UnnamedHero/project-lvl3-s274#readme",
   "devDependencies": {
-    "@babel/cli": "^7.0.0-beta.51",
-    "@babel/core": "^7.0.0-beta.51",
-    "@babel/node": "^7.0.0-beta.51",
-    "@babel/plugin-transform-runtime": "^7.0.0-beta.51",
-    "@babel/preset-env": "^7.0.0-beta.51",
-    "@babel/preset-stage-0": "^7.0.0-beta.51",
+    "@babel/cli": "^7.0.0-beta.52",
+    "@babel/core": "^7.0.0-beta.52",
+    "@babel/node": "^7.0.0-beta.52",
+    "@babel/plugin-transform-runtime": "^7.0.0-beta.52",
+    "@babel/preset-env": "^7.0.0-beta.52",
+    "@babel/preset-stage-0": "^7.0.0-beta.52",
     "babel-core": "^7.0.0-bridge.0",
     "babel-eslint": "^8.2.5",
     "babel-jest": "^23.2.0",
     "eslint": "^4.19.1",
     "eslint-config-airbnb-base": "^13.0.0",
     "eslint-plugin-import": "^2.13.0",
-    "jest": "^23.2.0",
+    "jest": "^23.3.0",
     "nock": "^9.4.1"
   },
   "dependencies": {
@@ -51,6 +51,7 @@
     "axios": "^0.18.0",
     "cheerio": "^1.0.0-rc.2",
     "commander": "^2.16.0",
+    "debug": "^3.1.0",
     "fs-extra": "^6.0.1"
   }
 }
