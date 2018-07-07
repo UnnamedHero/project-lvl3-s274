@@ -3,10 +3,7 @@ import os from 'os';
 import nock from 'nock';
 import path from 'path';
 import pageLoader from '../src';
-import { makeNameFromUrl, makeResourceNameFromUrl } from '../src/helpers/name';
-import {
-  makePageHelper, getLocalPageLinks, changeLocalResourcesSourceTo,
-} from '../src/helpers/page';
+import { makeNameFromUrl } from '../src/helpers/name';
 
 let tmpDir;
 let htmlContent;
@@ -26,42 +23,7 @@ afterAll(async () => {
   await fs.remove(tmpDir);
 });
 
-describe('helpers tests', () => {
-  test('makeNameFromUrl', () => {
-    const url = 'https://hexlet.io/courses';
-    expect(makeNameFromUrl(url)).toBe('hexlet-io-courses');
-  });
-
-  test('makeResourceNameFromUrl', () => {
-    const resourceName = '/var/www/pic/logo/hexlet.png';
-    const expected = 'var-www-pic-logo-hexlet.png';
-    expect(makeResourceNameFromUrl(resourceName)).toBe(expected);
-  });
-
-  test('change local link source to given path', () => {
-    const localPath = '/tmp/page-loader/testpage';
-    const pageHelper = makePageHelper(htmlContent);
-    const expectedLinks = [
-      '/tmp/page-loader/testpage/icons-logo.png',
-      '/tmp/page-loader/testpage/css-style1.css',
-      '/tmp/page-loader/testpage/js-bitcoin-miner.js',
-      '/tmp/page-loader/testpage/pictures-passport-1.png',
-      '/tmp/page-loader/testpage/scans-my-credit-card.jpg',
-      '/tmp/page-loader/testpage/pictures-secret.bmp',
-    ];
-    changeLocalResourcesSourceTo(pageHelper, localPath);
-    expect(getLocalPageLinks(pageHelper)).toEqual(expectedLinks);
-  });
-});
-
-describe('directory access testing', () => {
-  test('fake dir', async () => {
-    await expect(pageLoader('foobar', 'c:\\windows\\system32'))
-      .rejects.toBeInstanceOf(Error);
-  });
-});
-
-describe('page download test', () => {
+describe('page loader test', () => {
   const targetUrl = 'http://www.example.com';
   const name = makeNameFromUrl(targetUrl);
   const filesPath = `${name}_files`;
@@ -73,6 +35,11 @@ describe('page download test', () => {
     { downloaded: '/pictures-passport-1.png', fixture: 'passport-1.png' },
     { downloaded: '/scans-my-credit-card.jpg', fixture: 'my-credit-card.jpg' },
   ];
+
+  test('fake dir', async () => {
+    await expect(pageLoader('foobar', 'c:\\windows\\system32'))
+      .rejects.toBeInstanceOf(Error);
+  });
 
   test('download page', async () => {
     nock(targetUrl)
@@ -106,7 +73,7 @@ describe('page download test', () => {
     expect(downloadedContent).toEqual(expectedContent);
   });
 
-  test('should fail if file exists', async () => {
+  test('should fail if html file exists', async () => {
     await expect(pageLoader(targetUrl, tmpDir))
       .rejects.toBeInstanceOf(Error);
   });
