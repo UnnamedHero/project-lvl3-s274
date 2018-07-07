@@ -19,7 +19,7 @@ const resourceElements = [
   },
 ];
 
-export const makePageHelper = html => cheerio.load(html);
+export const makePage = html => cheerio.load(html);
 
 export const getPageHtml = helper => helper.html();
 
@@ -31,10 +31,10 @@ export const getPageLinks = helper => resourceElements
     return [...acc, ...elementLinks];
   }, []);
 
-export const getLocalPageLinks = helper => getPageLinks(helper)
+export const getPagaeLocalLinks = helper => getPageLinks(helper)
   .filter(link => !isStartFromSchema(link));
 
-export const changeLocalResourcesSourceTo = (helper, newPath) => {
+export const changePageLocalLinksTo = (helper, newPath) => {
   resourceElements.forEach((element) => {
     helper(element.name).each((_, elem) => {
       const link = cheerio(elem).attr(element.attribute);
