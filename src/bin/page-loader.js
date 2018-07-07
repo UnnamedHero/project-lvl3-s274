@@ -19,7 +19,7 @@ program
       await pageLoader(targetUrl, program.output);
       process.exitCode = 0;
     } catch (e) {
-      console.log(e.message);
+      console.error(e.message);
       process.exitCode = 1;
     }
   })
