@@ -37,17 +37,11 @@ const writeHtml = (pageHelperAndLinksObject, outputHtmlFile) => {
   const { pageHelper, linksObject } = pageHelperAndLinksObject;
   const html = getPageHtml(pageHelper);
   return fs.writeFile(outputHtmlFile, html)
-    .then(() => linksObject)
-    .catch((e) => {
-      throw new Error(e);
-    });
+    .then(() => linksObject);
 };
 
 const createResourceDir = (linksObject, destinationDir) => fs.mkdir(destinationDir)
-  .then(() => linksObject)
-  .catch((e) => {
-    throw new Error(e);
-  });
+  .then(() => linksObject);
 
 const downloadRemoteResources = linksObject => Promise.all(linksObject
   .map((link) => {
@@ -98,9 +92,6 @@ const pageLoader = (targetUrl, destinationDir) => {
     .then(downloadResults => notifyResourcesSaved(downloadResults))
     .then(() => {
       console.log(`Page was downloaded to ${htmlFilePath}`);
-    })
-    .catch((err) => {
-      throw new Error(err);
     });
 };
 
