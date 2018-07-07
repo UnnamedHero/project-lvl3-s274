@@ -2,7 +2,7 @@ import cheerio from 'cheerio';
 import path from 'path';
 import { makeResourceNameFromUrl } from './name';
 
-const isStartFromSchema = link => link.search(new RegExp('^(https?://)', 'g')) !== -1;
+const isStartFromSchema = link => link.search(new RegExp('(^(https?://)|^//)', 'g')) !== -1;
 
 const resourceElements = [
   {

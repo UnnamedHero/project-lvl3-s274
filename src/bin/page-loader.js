@@ -17,8 +17,10 @@ program
     log(`Command line launch with:\n\tUrl: ${targetUrl}\n\tOutput dir: ${program.output}`);
     try {
       await pageLoader(targetUrl, program.output);
+      process.exitCode = 0;
     } catch (e) {
-      console.log(e.message);
+      console.error(e.message);
+      process.exitCode = 1;
     }
   })
   .parse(process.argv);
@@ -27,4 +29,6 @@ const programArgs = process.argv.slice(2);
 
 if (programArgs.length === 0) {
   program.help();
+  log('launched without args');
+  process.exit = 0;
 }
