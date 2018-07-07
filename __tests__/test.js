@@ -38,7 +38,7 @@ describe('page loader test', () => {
 
   test('fake dir', async () => {
     await expect(pageLoader('foobar', 'c:\\windows\\system32'))
-      .rejects.toBeInstanceOf(Error);
+      .rejects.toThrow();
   });
 
   test('download page', async () => {
@@ -75,6 +75,6 @@ describe('page loader test', () => {
 
   test('should fail if html file exists', async () => {
     await expect(pageLoader(targetUrl, tmpDir))
-      .rejects.toBeInstanceOf(Error);
+      .rejects.toThrow();
   });
 });
