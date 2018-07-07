@@ -44,6 +44,7 @@ const pageLoader = (targetUrl, destinationDir) => {
       log('check if destination file already exists');
       return fs.open(htmlFilePath, 'wx');
     })
+    .then(() => fs.remove(htmlFilePath))
     .then(() => {
       log('downloading page');
       return axios.get(targetUrl);
