@@ -2,7 +2,10 @@ install:
 	npm install
 
 start:
-	npm run babel-node -- src/bin/page-loader.js ${ARGS}
+	npx babel-node -- src/bin/page-loader.js ${ARGS}
+
+debug:
+	DEBUG="page-loader:*" npx babel-node -- src/bin/page-loader.js ${ARGS}
 
 publish:
 	npm publish
@@ -18,4 +21,4 @@ test:
 	npm test
 
 watch:
-	npm test -- --watch
+	DEBUG="page-loader:*" npm test -- --watch
