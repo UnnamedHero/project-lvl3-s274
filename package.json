@@ -1,6 +1,6 @@
 {
   "name": "eem-page-loader",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "description": "Page loader Hexlet backend project#3",
   "main": "index.js",
   "bin": {
