@@ -75,4 +75,12 @@ describe('page loader test', () => {
     await expect(pageLoader(targetUrl, tmpDir))
       .rejects.toThrow();
   });
+
+  test('should fail on 404', async () => {
+    nock(targetUrl)
+      .get('/')
+      .replyWithError(404);
+    await expect(pageLoader(targetUrl, tmpDir))
+      .rejects.toThrow();
+  });
 });
