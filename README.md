@@ -23,6 +23,11 @@
 
     <targetUrl>               Url address of a page to download, must begin with address schema like http:// or https://
 
+### Debug
+
+```DEBUG="page-loader:*" eem-page-loader [options] <targetUrl>```
+
+## Описание
 
 Цель: Основная задача этого проекта, показать общие принципы работы с асинхронным кодом в js. Затрагиваемые темы:
 
