@@ -47,6 +47,7 @@ describe('helpers tests', () => {
       '/tmp/page-loader/testpage/js-bitcoin-miner.js',
       '/tmp/page-loader/testpage/pictures-passport-1.png',
       '/tmp/page-loader/testpage/scans-my-credit-card.jpg',
+      '/tmp/page-loader/testpage/pictures-secret.bmp',
     ];
     changeLocalResourcesSourceTo(pageHelper, localPath);
     expect(getLocalPageLinks(pageHelper)).toEqual(expectedLinks);
@@ -88,7 +89,9 @@ describe('page download test', () => {
       .get('/pictures/passport-1.png')
       .replyWithFile(200, pathTo('passport-1.png'))
       .get('/scans/my-credit-card.jpg')
-      .replyWithFile(200, pathTo('my-credit-card.jpg'));
+      .replyWithFile(200, pathTo('my-credit-card.jpg'))
+      .get('/pictures/secret.bmp')
+      .reply(404);
 
     await pageLoader(targetUrl, tmpDir);
     const htmlName = `${name}.html`;
