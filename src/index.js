@@ -2,6 +2,7 @@ import debug from 'debug';
 import fs from 'fs-extra';
 import path from 'path';
 import url from 'url';
+import Listr from 'listr';
 import axios from './lib/axios';
 import { makeNameFromUrl } from './helpers/name';
 import {
@@ -10,24 +11,29 @@ import {
 
 const log = debug('page-loader:core');
 
-const downloadRemoteResources = linksAndFiles => Promise.all(linksAndFiles
-  .map((link) => {
-    const { linkUrl } = link;
-    log(`start downloading ${linkUrl}`);
-    return axios.get(linkUrl, { responseType: 'stream' });
-  }));
+const prepareDownloadTasks = linksAndFiles => new Listr(linksAndFiles
+  .map(({ linkUrl, linklocalPath }, index) => ({
+    title: linkUrl,
+    task: (ctx) => {
+      log(`start downloading ${linkUrl}`);
+      return axios.get(linkUrl, { responseType: 'stream' })
+        .then((response) => {
+          ctx[index] = { response, linkUrl, linklocalPath };
+        });
+    },
+  })),
+{ concurrent: true });
 
-const saveDownloadedResources = (downloads, linksAndFiles) => Promise.all(downloads
-  .map((download, index) => new Promise((resolve, reject) => {
-    const { linkUrl, linklocalPath } = linksAndFiles[index];
+const saveDownloadedResources = downloads => Promise.all(Object.values(downloads)
+  .map(download => new Promise((resolve, reject) => {
+    const { response, linkUrl, linklocalPath } = download;
     log(`resource ${linkUrl} downloaded`);
-    download.data.pipe(fs.createWriteStream(linklocalPath)
+    response.data.pipe(fs.createWriteStream(linklocalPath)
       .on('finish', () => resolve(`${linkUrl} was saved to ${linklocalPath}`))
       .on('error', e => reject(new Error(`'${e} Unable to save ${linkUrl}`))));
   })));
 
-
-const notifyResourcesSaved = downloadResults => downloadResults
+const notifyResourcesSaved = resourceFiles => resourceFiles
   .forEach((result) => {
     log(result);
   });
@@ -68,9 +74,10 @@ const pageLoader = (targetUrl, destinationDir) => {
           log('make resource dir');
           return fs.mkdir(resourceDirPath);
         })
-        .then(() => downloadRemoteResources(linksAndFiles))
-        .then(downloads => saveDownloadedResources(downloads, linksAndFiles))
-        .then(downloadResults => notifyResourcesSaved(downloadResults))
+        .then(() => prepareDownloadTasks(linksAndFiles))
+        .then(downloadTasks => downloadTasks.run())
+        .then(downloads => saveDownloadedResources(downloads))
+        .then(resourceFiles => notifyResourcesSaved(resourceFiles))
         .then(() => {
           log('END');
           console.log(`Page was downloaded to ${htmlFilePath}`);
