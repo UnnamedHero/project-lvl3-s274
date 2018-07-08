@@ -75,8 +75,9 @@ describe('page loader test', () => {
   });
 
   test('should fail if html file exists', async () => {
+    const matcher = new RegExp('^(EEXIST: file already exists, open \'(.+)?www-example-com.html\')$', 'g');
     await expect(pageLoader(targetUrl, tmpDir))
-      .rejects.toThrowError();
+      .rejects.toHaveProperty('message', expect.stringMatching(matcher));
   });
 
   test('should fail on 404', async () => {
