@@ -8,13 +8,17 @@ import { makeNameFromUrl } from '../src/helpers/name';
 let tmpDir;
 let htmlContent;
 
+let extraTmpDir;
+const existingFileName = 'foobar.html';
+
 const testPath = __dirname;
 const fixturesPath = path.join(testPath, '__fixtures__');
 const pathTo = fileName => path.join(fixturesPath, fileName);
 
 beforeAll(async () => {
   tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), 'page-loader'));
-
+  extraTmpDir = await fs.mkdtemp(path.join(tmpDir, 'page-loader'));
+  await fs.open(path.join(extraTmpDir, existingFileName), 'wx');
   const simpleHtml = 'simple.html';
   htmlContent = await fs.readFile(pathTo(simpleHtml), 'utf8');
 });
@@ -26,6 +30,7 @@ afterAll(async () => {
 describe('page loader test', () => {
   const targetUrl = 'http://www.example.com';
   const name = makeNameFromUrl(targetUrl);
+  const htmlName = `${name}.html`;
   const filesPath = `${name}_files`;
 
   const expectedDownloadedFiles = [
@@ -62,7 +67,7 @@ describe('page loader test', () => {
       .replyWithFile(200, pathTo('my-credit-card.jpg'));
 
     await pageLoader(targetUrl, tmpDir);
-    const htmlName = `${name}.html`;
+    // const htmlName = `${name}.html`;
     const resultHtmlFilePath = path.join(tmpDir, htmlName);
     await expect(fs.open(resultHtmlFilePath, 'r')).resolves.toBeDefined();
   });
@@ -75,8 +80,8 @@ describe('page loader test', () => {
   });
 
   test('should fail if html file exists', async () => {
-    const matcher = new RegExp('^(EEXIST: file already exists, open \'(.+)?www-example-com.html\')$', 'g');
-    await expect(pageLoader(targetUrl, tmpDir))
+    const matcher = new RegExp(`^(EEXIST: file already exists, open '(.+)?${existingFileName}')$`, 'g');
+    await expect(pageLoader('foobar', extraTmpDir))
       .rejects.toHaveProperty('message', expect.stringMatching(matcher));
   });
 
