@@ -33,7 +33,7 @@ const saveDownloadedResources = downloads => Promise.all(Object.values(downloads
       .on('error', e => reject(new Error(`'${e} Unable to save ${linkUrl}`))));
   })));
 
-const notifyResourcesSaved = resourceFiles => resourceFiles
+const showResultsInDebugMode = resourceFiles => resourceFiles
   .forEach((result) => {
     log(result);
   });
@@ -76,8 +76,8 @@ const pageLoader = (targetUrl, destinationDir) => {
         })
         .then(() => prepareDownloadTasks(linksAndFiles))
         .then(downloadTasks => downloadTasks.run())
-        .then(downloads => saveDownloadedResources(downloads))
-        .then(resourceFiles => notifyResourcesSaved(resourceFiles))
+        .then(saveDownloadedResources)
+        .then(showResultsInDebugMode)
         .then(() => {
           log('END');
           console.log(`Page was downloaded to ${htmlFilePath}`);
