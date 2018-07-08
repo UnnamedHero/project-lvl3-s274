@@ -2,7 +2,7 @@ import cheerio from 'cheerio';
 import path from 'path';
 import { makeResourceNameFromUrl } from './name';
 
-const isStartFromSchema = link => link.search(new RegExp('(^(https?://)|^//)', 'g')) !== -1;
+const isAbsoluteUrl = link => link.search(new RegExp('(^(https?://)|^//)', 'g')) !== -1;
 
 const resourceElements = [
   {
@@ -32,13 +32,13 @@ export const getPageLinks = helper => resourceElements
   }, []);
 
 export const getPagaeLocalLinks = helper => getPageLinks(helper)
-  .filter(link => !isStartFromSchema(link));
+  .filter(link => !isAbsoluteUrl(link));
 
 export const changePageLocalLinksTo = (helper, newPath) => {
   resourceElements.forEach((element) => {
     helper(element.name).each((_, elem) => {
       const link = cheerio(elem).attr(element.attribute);
-      if (link && !isStartFromSchema(link)) {
+      if (link && !isAbsoluteUrl(link)) {
         const newLink = makeResourceNameFromUrl(link);
         const fullPath = path.join(newPath, newLink);
         cheerio(elem).attr(element.attribute, fullPath);

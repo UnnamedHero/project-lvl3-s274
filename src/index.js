@@ -2,6 +2,7 @@ import debug from 'debug';
 import fs from 'fs-extra';
 import path from 'path';
 import url from 'url';
+import Listr from 'listr';
 import axios from './lib/axios';
 import { makeNameFromUrl } from './helpers/name';
 import {
@@ -10,24 +11,29 @@ import {
 
 const log = debug('page-loader:core');
 
-const downloadRemoteResources = linksAndFiles => Promise.all(linksAndFiles
-  .map((link) => {
-    const { linkUrl } = link;
-    log(`start downloading ${linkUrl}`);
-    return axios.get(linkUrl, { responseType: 'stream' });
-  }));
+const prepareDownloadTasks = linksAndFiles => new Listr(linksAndFiles
+  .map(({ linkUrl, linklocalPath }, index) => ({
+    title: linkUrl,
+    task: (ctx) => {
+      log(`start downloading [${linkUrl}]`);
+      return axios.get(linkUrl, { responseType: 'stream' })
+        .then((response) => {
+          ctx[index] = { response, linkUrl, linklocalPath };
+        });
+    },
+  })),
+{ concurrent: true });
 
-const saveDownloadedResources = (downloads, linksAndFiles) => Promise.all(downloads
-  .map((download, index) => new Promise((resolve, reject) => {
-    const { linkUrl, linklocalPath } = linksAndFiles[index];
-    log(`resource ${linkUrl} downloaded`);
-    download.data.pipe(fs.createWriteStream(linklocalPath)
-      .on('finish', () => resolve(`${linkUrl} was saved to ${linklocalPath}`))
-      .on('error', e => reject(new Error(`'${e} Unable to save ${linkUrl}`))));
+const saveDownloadedResources = downloads => Promise.all(Object.values(downloads)
+  .map(download => new Promise((resolve, reject) => {
+    const { response, linkUrl, linklocalPath } = download;
+    log(`resource [${linkUrl}] downloaded`);
+    response.data.pipe(fs.createWriteStream(linklocalPath)
+      .on('finish', () => resolve(`resource [${linkUrl}] was saved to [${linklocalPath}]`))
+      .on('error', e => reject(new Error(`[${e}] Unable to save [${linkUrl}]`))));
   })));
 
-
-const notifyResourcesSaved = downloadResults => downloadResults
+const showResultsInDebugMode = resourceFiles => resourceFiles
   .forEach((result) => {
     log(result);
   });
@@ -38,15 +44,15 @@ const pageLoader = (targetUrl, destinationDir) => {
   const htmlName = `${pageName}.html`;
   const htmlFilePath = path.join(destinationDir, htmlName);
   const resourceDirPath = path.join(destinationDir, `${pageName}_files`);
-  log('check if target dir exists and writable');
+  log(`check dir [${destinationDir}] exists and writable`);
   return fs.access(destinationDir, fs.constants.W_OK)
     .then(() => {
-      log('check if destination file already exists');
+      log(`check if destination file [${htmlFilePath}] already exists`);
       return fs.open(htmlFilePath, 'wx');
     })
     .then(() => fs.remove(htmlFilePath))
     .then(() => {
-      log('downloading page');
+      log(`downloading [${targetUrl}]`);
       return axios.get(targetUrl);
     })
     .then((response) => {
@@ -62,15 +68,16 @@ const pageLoader = (targetUrl, destinationDir) => {
         return ({ linkUrl, linklocalPath });
       });
       const html = getPageHtml(page);
-      log('saving page');
+      log(`saving page to [${htmlFilePath}]`);
       return fs.writeFile(htmlFilePath, html)
         .then(() => {
-          log('make resource dir');
+          log(`make resource dir [${resourceDirPath}]`);
           return fs.mkdir(resourceDirPath);
         })
-        .then(() => downloadRemoteResources(linksAndFiles))
-        .then(downloads => saveDownloadedResources(downloads, linksAndFiles))
-        .then(downloadResults => notifyResourcesSaved(downloadResults))
+        .then(() => prepareDownloadTasks(linksAndFiles))
+        .then(downloadTasks => downloadTasks.run())
+        .then(saveDownloadedResources)
+        .then(showResultsInDebugMode)
         .then(() => {
           log('END');
           console.log(`Page was downloaded to ${htmlFilePath}`);
