@@ -1,8 +1,9 @@
 import cheerio from 'cheerio';
 import path from 'path';
+import uniq from 'lodash/uniq';
 import { makeResourceNameFromUrl } from './name';
 
-const isAbsoluteUrl = link => link.search(new RegExp('(^(https?://)|^//)', 'g')) !== -1;
+const isAbsoluteUrl = link => link.search(new RegExp('(^(.+)?//)', 'g')) !== -1;
 
 const resourceElements = [
   {
@@ -28,7 +29,8 @@ export const getPageLinks = helper => resourceElements
     const elementLinks = helper(resource.name)
       .map((_, elem) => cheerio(elem).attr(resource.attribute))
       .get();
-    return [...acc, ...elementLinks];
+    const uniqLinks = uniq(elementLinks);
+    return [...acc, ...uniqLinks];
   }, []);
 
 export const getPagaeLocalLinks = helper => getPageLinks(helper)
