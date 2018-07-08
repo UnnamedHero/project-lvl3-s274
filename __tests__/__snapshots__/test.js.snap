@@ -1,0 +1,7 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`page loader test should fail on 404 1`] = `[Error: Error 404 for https://geekbrains.ru/]`;
+
+exports[`page loader test should fail on fake dir 1`] = `[Error: ENOENT: no such file or directory, access 'c:\\windows\\system32']`;
+
+exports[`page loader test should fail on readonly dir 1`] = `[Error: EACCES: permission denied, access '/']`;

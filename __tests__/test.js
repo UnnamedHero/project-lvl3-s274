@@ -36,9 +36,12 @@ describe('page loader test', () => {
     { downloaded: '/scans-my-credit-card.jpg', fixture: 'my-credit-card.jpg' },
   ];
 
-  test('fake dir', async () => {
-    await expect(pageLoader('foobar', 'c:\\windows\\system32'))
-      .rejects.toThrow();
+  test('should fail on fake dir', async () => {
+    await expect(pageLoader('foobar', 'c:\\windows\\system32')).rejects.toMatchSnapshot();
+  });
+
+  test('should fail on readonly dir', async () => {
+    await expect(pageLoader('foobar', '/')).rejects.toMatchSnapshot();
   });
 
   test('download page', async () => {
@@ -73,14 +76,15 @@ describe('page loader test', () => {
 
   test('should fail if html file exists', async () => {
     await expect(pageLoader(targetUrl, tmpDir))
-      .rejects.toThrow();
+      .rejects.toThrowError();
   });
 
   test('should fail on 404', async () => {
-    nock(targetUrl)
+    const url = 'https://geekbrains.ru/';
+    nock(url)
       .get('/')
       .replyWithError(404);
-    await expect(pageLoader(targetUrl, tmpDir))
-      .rejects.toThrow();
+    await expect(pageLoader(url, tmpDir))
+      .rejects.toMatchSnapshot();
   });
 });
