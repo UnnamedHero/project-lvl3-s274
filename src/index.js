@@ -27,8 +27,8 @@ const prepareDownloadTasks = (linksAndFiles) => {
 };
 
 const saveDownloadedResources = (downloads) => {
-  const responces = Object.values(downloads);
-  return Promise.all(responces
+  const responses = Object.values(downloads);
+  return Promise.all(responses
     .map(download => new Promise((resolve, reject) => {
       const { response, linkUrl, linklocalPath } = download;
       log(`resource [${linkUrl}] downloaded`);
