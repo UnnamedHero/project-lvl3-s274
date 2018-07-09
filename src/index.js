@@ -11,27 +11,32 @@ import {
 
 const log = debug('page-loader:core');
 
-const prepareDownloadTasks = linksAndFiles => new Listr(linksAndFiles
-  .map(({ linkUrl, linklocalPath }, index) => ({
-    title: linkUrl,
-    task: (ctx) => {
-      log(`start downloading [${linkUrl}]`);
-      return axios.get(linkUrl, { responseType: 'stream' })
-        .then((response) => {
-          ctx[index] = { response, linkUrl, linklocalPath };
-        });
-    },
-  })),
-{ concurrent: true });
+const prepareDownloadTasks = (linksAndFiles) => {
+  const tasks = linksAndFiles
+    .map(({ linkUrl, linklocalPath }, index) => ({
+      title: linkUrl,
+      task: (ctx) => {
+        log(`start downloading [${linkUrl}]`);
+        return axios.get(linkUrl, { responseType: 'stream' })
+          .then((response) => {
+            ctx[index] = { response, linkUrl, linklocalPath };
+          });
+      },
+    }));
+  return new Listr(tasks, { concurrent: true });
+};
 
-const saveDownloadedResources = downloads => Promise.all(Object.values(downloads)
-  .map(download => new Promise((resolve, reject) => {
-    const { response, linkUrl, linklocalPath } = download;
-    log(`resource [${linkUrl}] downloaded`);
-    response.data.pipe(fs.createWriteStream(linklocalPath)
-      .on('finish', () => resolve(`resource [${linkUrl}] was saved to [${linklocalPath}]`))
-      .on('error', e => reject(new Error(`[${e}] Unable to save [${linkUrl}]`))));
-  })));
+const saveDownloadedResources = (downloads) => {
+  const responces = Object.values(downloads);
+  return Promise.all(responces
+    .map(download => new Promise((resolve, reject) => {
+      const { response, linkUrl, linklocalPath } = download;
+      log(`resource [${linkUrl}] downloaded`);
+      response.data.pipe(fs.createWriteStream(linklocalPath)
+        .on('finish', () => resolve(`resource [${linkUrl}] was saved to [${linklocalPath}]`))
+        .on('error', e => reject(new Error(`[${e}] Unable to save [${linkUrl}]`))));
+    })));
+};
 
 const showResultsInDebugMode = resourceFiles => resourceFiles
   .forEach((result) => {
